@@ -37,7 +37,7 @@ export const balanceHandler: CommandHandler = {
       const ethBalance = await getEthBalance(wallet.address);
 
       // Get list of tokens this user has interacted with (already filtered and unique)
-      const interactedTokens = getUniqueTokensByUserId(userId);
+      const interactedTokens = await getUniqueTokensByUserId(userId);
 
       // Get token balances for interacted tokens
       let tokenBalances: TokenInfo[] = [];

@@ -49,7 +49,7 @@ const sellHandler: CommandHandler = {
       }
 
       // Get list of tokens this user has interacted with (already filtered and unique)
-      const interactedTokens = getUniqueTokensByUserId(userId);
+      const interactedTokens = await getUniqueTokensByUserId(userId);
 
 
       console.log("Interacted tokens:", interactedTokens);

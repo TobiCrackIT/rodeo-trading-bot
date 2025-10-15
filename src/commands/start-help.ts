@@ -67,7 +67,7 @@ export const startHandler: CommandHandler = {
         );
       } else {
         // Get user settings
-        const settings = getUserSettings(userId);
+        const settings = await getUserSettings(userId);
 
         if (settings) {
           ctx.session.settings = settings;

@@ -42,8 +42,8 @@ export const CONFIRMATION_TIMEOUT = 60000; // 1 minute
 export const MAX_UINT256 =
   "115792089237316195423570985008687907853269984665640564039457584007913129639935";
 
-
-export const DB_PATH = process.env.DB_PATH || "./database.sqlite";
+// Database connection string
+export const DATABASE_URL = process.env.DATABASE_URL || "";
 
 // Database tables
 export const DB_TABLES = {

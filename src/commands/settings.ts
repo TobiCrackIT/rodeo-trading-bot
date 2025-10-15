@@ -27,7 +27,7 @@ const settingsHandler: CommandHandler = {
       let settings = ctx.session.settings;
 
       if (!settings) {
-        settings = getUserSettings(userId) || undefined;
+        settings = await getUserSettings(userId) || undefined;
 
         if (settings) {
           ctx.session.settings = settings;
