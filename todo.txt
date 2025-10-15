@@ -1,0 +1,2 @@
+- Add feature to get token info when I paste address or ticker
+- Add feature to ask AI questions
