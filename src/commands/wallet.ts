@@ -3,6 +3,7 @@ import { getWallet, generateWallet } from "../lib/token-wallet";
 import { CommandHandler } from "../types/commands";
 import { InlineKeyboard } from "grammy";
 import { verifyEncryptionKey } from "../lib/encryption";
+import { ensureUserExists } from "../lib/database"; // Add this import
 
 // Wallet command handler
 export const walletHandler: CommandHandler = {
@@ -49,8 +50,8 @@ export const walletHandler: CommandHandler = {
           `*Address*: \`${wallet.address}\`\n` +
           `*Type*: ${
             wallet.type === "generated" ? "Generated" : "Imported"
-          }\n` +
-          `*Created*: ${new Date(wallet.createdAt).toLocaleDateString()}\n\n` +
+          }\n\n` +
+          
           `Choose an action below or use one of these commands:\n` +
           `- /balance - Check your token balances\n` +
           `- /deposit - Show your deposit address\n` +
@@ -113,6 +114,8 @@ export const createHandler: CommandHandler = {
       // Create a new wallet
       await ctx.reply("🔐 Creating a new wallet for you...");
 
+      // Ensure the user exists in the database
+      await ensureUserExists(userId, ctx.from?.id.toString() || "");
       const wallet = await generateWallet(userId);
       ctx.session.walletAddress = wallet.address;
 

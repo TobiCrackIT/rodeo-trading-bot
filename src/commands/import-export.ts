@@ -122,6 +122,9 @@ export const exportHandler: CommandHandler = {
         return;
       }
 
+      // Ensure the user exists in the database
+      //await ensureUserExists(userId, ctx.from?.id.toString() || "");
+
       // Get user's wallet
       const wallet = await getWallet(userId);
 
@@ -191,7 +194,7 @@ export async function handleExportConfirmation(
     }
 
     // Extract private key
-    const privateKey = getPrivateKey(wallet);
+    const privateKey = await getPrivateKey(wallet);
 
     // Send private key in a separate message that auto-deletes after 60 seconds
     await ctx.reply("🔑 *Your Private Key*\n\n" + `\`${privateKey}\`\n\n`, {
@@ -219,3 +222,7 @@ export async function handleExportConfirmation(
     );
   }
 }
+function ensureUserExists(userId: string, arg1: string) {
+  throw new Error("Function not implemented.");
+}
+

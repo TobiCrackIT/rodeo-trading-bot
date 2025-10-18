@@ -116,6 +116,10 @@ export function getAccount(walletData: WalletData): Account {
  * Get private key from wallet data
  */
 export function getPrivateKey(walletData: WalletData): string {
+  console.log("Getting private key from wallet data:", walletData);
+  if (!walletData.encryptedPrivateKey) {
+    throw new Error("Encrypted private key is missing.");
+  }
   return decrypt(walletData.encryptedPrivateKey);
 }
 

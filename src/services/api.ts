@@ -68,6 +68,15 @@ export const validateQuery = async (query: string) => {
   return response.data;
 };
 
+// General query
+export const getGeneralData = async (blockchain: string, query: string) => {
+  const response = await apiClient.post("/api/ai/market", {
+    blockchain,
+    query,
+  });
+  return response.data;
+};
+
 // Health Check
 export const checkApiHealth = async () => {
   const response = await apiClient.get("/health");

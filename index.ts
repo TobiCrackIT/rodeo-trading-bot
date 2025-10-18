@@ -33,7 +33,7 @@ import withdrawHandler, {
   handleWithdrawConfirmation,
 } from "./src/commands/withdraw";
 import { isValidAddress } from "./src/utils/validators";
-import { fetchComprehensiveTokenData } from "./src/services/api-service";
+import { fetchComprehensiveTokenData, fetchGeneralData } from "./src/services/api-service";
 
 // Load environment variables
 dotenv.config();
@@ -51,6 +51,7 @@ if (!verifyEncryptionKey()) {
 
 // Create bot instance
 const bot = new Bot<BotContext>(process.env.TELEGRAM_BOT_TOKEN || "");
+const blockchain = process.env.NETWORK || "base";
 
 // Set up session middleware
 bot.use(
@@ -299,30 +300,47 @@ bot.on("message:text", async (ctx) => {
           await ctx.reply("❌ Unable to fetch token data. Please ensure the address is correct.");
         }
         return;
+      } else {
+        var chat = await ctx.reply("⏳ Thinking...");
+
+        var response = await fetchGeneralData(blockchain, text);
+        console.log("General Data Response:", response);
+        if (response) {
+          await ctx.api.editMessageText(chat.chat.id, chat.message_id,
+            `🤖 \n` +
+            response.response,
+            { parse_mode: "Markdown" }
+          );
+        } else {
+          await ctx.reply("❌ Unable to fetch data for your query. Please try rephrasing.");
+        }
+        return;
       }
+
+
 
       // If no current action, but message received, show help
-      if (!ctx.session.currentAction) {
-        const keyboard = new InlineKeyboard()
-          .text("💰 Balance", "check_balance")
-          .text("💱 Buy/Sell", "buy_token")
-          .row()
-          .text("📥 Deposit", "deposit")
-          .text("📤 Withdraw", "withdraw");
+      // if (!ctx.session.currentAction) {
+      //   const keyboard = new InlineKeyboard()
+      //     .text("💰 Balance", "check_balance")
+      //     .text("💱 Buy/Sell", "buy_token")
+      //     .row()
+      //     .text("📥 Deposit", "deposit")
+      //     .text("📤 Withdraw", "withdraw");
 
-        await ctx.reply(
-          "🤖 Hello! Here are some things you can do:\n\n" +
-          "/wallet - View your wallet\n" +
-          "/balance - Check your balances\n" +
-          "/buy - Buy tokens with ETH\n" +
-          "/sell - Sell tokens for ETH\n" +
-          "/deposit - Get your deposit address\n" +
-          "/withdraw - Withdraw ETH to another address\n" +
-          "/settings - Change trading settings\n" +
-          "/help - Show this help message",
-          { reply_markup: keyboard }
-        );
-      }
+      //   await ctx.reply(
+      //     "🤖 Hello! Here are some things you can do:\n\n" +
+      //     "/wallet - View your wallet\n" +
+      //     "/balance - Check your balances\n" +
+      //     "/buy - Buy tokens with ETH\n" +
+      //     "/sell - Sell tokens for ETH\n" +
+      //     "/deposit - Get your deposit address\n" +
+      //     "/withdraw - Withdraw ETH to another address\n" +
+      //     "/settings - Change trading settings\n" +
+      //     "/help - Show this help message",
+      //     { reply_markup: keyboard }
+      //   );
+      // }
       break;
   }
 });

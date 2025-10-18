@@ -5,17 +5,25 @@ import { ENCRYPTION_KEY } from "../utils/constants";
  * Encrypt sensitive data (like private keys)
  */
 export function encrypt(text: string): string {
-  if (!ENCRYPTION_KEY) {
-    throw new Error("Encryption key not set in environment variables");
+  try {
+    if (!ENCRYPTION_KEY) {
+      throw new Error("Encryption key not set in environment variables");
+    }
+    return CryptoJS.AES.encrypt(text, ENCRYPTION_KEY).toString();
+  } catch (error) {
+    console.error("Encryption failed:", error);
+    throw error;
   }
-
-  return CryptoJS.AES.encrypt(text, ENCRYPTION_KEY).toString();
 }
 
 /**
  * Decrypt encrypted data
  */
 export function decrypt(encryptedText: string): string {
+  if (!encryptedText) {
+      throw new Error("Encrypted data is undefined or empty.");
+    }
+
   if (!ENCRYPTION_KEY) {
     throw new Error("Encryption key not set in environment variables");
   }

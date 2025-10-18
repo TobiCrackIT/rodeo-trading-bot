@@ -46,13 +46,13 @@ const buyHandler: CommandHandler = {
       // Check ETH balance
       const balance = await getEthBalance(wallet.address);
 
-      if (BigInt(balance) <= BigInt(0)) {
-        await ctx.reply(
-          "❌ Your wallet has no ETH balance to buy tokens.\n\n" +
-            "Use /deposit to get your deposit address and add ETH first."
-        );
-        return;
-      }
+      // if (BigInt(balance) <= BigInt(0)) {
+      //   await ctx.reply(
+      //     "❌ Your wallet has no ETH balance to buy tokens.\n\n" +
+      //       "Use /deposit to get your deposit address and add ETH first."
+      //   );
+      //   return;
+      // }
 
       // Set current action
       ctx.session.currentAction = "buy_token";

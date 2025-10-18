@@ -118,6 +118,14 @@ export async function createUser(
   }
 }
 
+// Ensure the user exists before saving the wallet
+export async function ensureUserExists(userId: string, telegramId: string): Promise<void> {
+  const user = await getUserByTelegramId(telegramId);
+  if (!user) {
+    await createUser(userId, telegramId); // Create the user if they don't exist
+  }
+}
+
 export async function getUserByTelegramId(telegramId: string): Promise<UserRow | null> {
   const client = await pool.connect();
   try {
@@ -135,6 +143,7 @@ export async function getUserByTelegramId(telegramId: string): Promise<UserRow |
 export async function saveWallet(walletData: WalletData, userId: string): Promise<void> {
   const client = await pool.connect();
   try {
+    
     await client.query(
       `INSERT INTO ${DB_TABLES.WALLETS} (address, userId, encryptedPrivateKey, type, createdAt)
        VALUES ($1, $2, $3, $4, $5)
@@ -157,7 +166,8 @@ export async function getWalletByUserId(userId: string): Promise<WalletData | nu
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `SELECT * FROM ${DB_TABLES.WALLETS} WHERE userId = $1`,
+      `SELECT address, userId, encryptedPrivateKey AS "encryptedPrivateKey", type, createdAt AS "createdAt"
+       FROM ${DB_TABLES.WALLETS} WHERE userId = $1`,
       [userId]
     );
     return result.rows[0] || null;
@@ -170,7 +180,7 @@ export async function getWalletByAddress(address: string): Promise<WalletData | 
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `SELECT * FROM ${DB_TABLES.WALLETS} WHERE address = $1`,
+      `SELECT address, userId, encryptedPrivateKey AS "encryptedPrivateKey", type, createdAt AS "createdAt" FROM ${DB_TABLES.WALLETS} WHERE address = $1`,
       [address]
     );
     return result.rows[0] || null;
