@@ -1,5 +1,5 @@
 import { TokenData } from "../types/wallet";
-import { getComprehensiveTokenData, getGeneralData } from "./api";
+import { getComprehensiveTokenData, getGeneralData, extractIntent } from "./api";
 import dotenv from "dotenv";
 
 // Load environment variables
@@ -23,6 +23,16 @@ export async function fetchGeneralData(blockchain: string, query: string): Promi
         return data;
     } catch (error) {
         console.error("❌ Error fetching general data:", error);
+        return null;
+    }
+}
+
+export async function extractUserIntent(userInput: string): Promise<any> {
+    try {
+        const intentData = await extractIntent(userInput);
+        return intentData;
+    } catch (error) {
+        console.error("❌ Error extracting user intent:", error);
         return null;
     }
 }

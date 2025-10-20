@@ -68,6 +68,13 @@ export const validateQuery = async (query: string) => {
   return response.data;
 };
 
+export const extractIntent = async (userInput: string) => {
+  const response = await apiClient.post("/api/ai/extract-intent", {
+    userInput,
+  });
+  return response.data;
+};
+
 // General query
 export const getGeneralData = async (blockchain: string, query: string) => {
   const response = await apiClient.post("/api/ai/market", {
@@ -82,3 +89,4 @@ export const checkApiHealth = async () => {
   const response = await apiClient.get("/health");
   return response.data;
 };
+
