@@ -14,3 +14,4 @@ export function createInitialSessionData(): SessionData {
     settings: undefined,
   };
 }
+

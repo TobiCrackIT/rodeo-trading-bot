@@ -1,7 +1,7 @@
 import { Bot, session, InlineKeyboard } from "grammy";
 import dotenv from "dotenv";
 import { BotContext, createInitialSessionData } from "./src/context";
-import { initDatabase, closeDatabase } from "./src/lib/database";
+import { initDatabase, closeDatabase, ensureUserInitialized } from "./src/lib/database";
 import { verifyEncryptionKey } from "./src/lib/encryption";
 
 // Import commands
@@ -53,12 +53,16 @@ if (!verifyEncryptionKey()) {
 const bot = new Bot<BotContext>(process.env.TELEGRAM_BOT_TOKEN || "");
 const blockchain = process.env.NETWORK || "base";
 
+const greetings = ["Hello", "Hey", "Hi", "Hoho"];
+
 // Set up session middleware
 bot.use(
   session({
     initial: createInitialSessionData,
   })
 );
+
+bot.use(ensureUserInitialized);
 
 // Register command handlers
 bot.command(startHandler.command, startHandler.handler);
@@ -283,6 +287,29 @@ bot.on("message:text", async (ctx) => {
       //   await ctx.reply("It seems like you have sent a ticker.");
       //   return;
       // }
+
+      if (greetings.includes(text.toLowerCase())) {
+        const keyboard = new InlineKeyboard()
+          .text("💰 Balance", "check_balance")
+          .text("💱 Buy/Sell", "buy_token")
+          .row()
+          .text("📥 Deposit", "deposit")
+          .text("📤 Withdraw", "withdraw");
+
+        await ctx.reply(
+          "🤖 Hello! Here are some things you can do:\n\n" +
+          "/wallet - View your wallet\n" +
+          "/balance - Check your balances\n" +
+          "/buy - Buy tokens with ETH\n" +
+          "/sell - Sell tokens for ETH\n" +
+          "/deposit - Get your deposit address\n" +
+          "/withdraw - Withdraw ETH to another address\n" +
+          "/settings - Change trading settings\n" +
+          "/help - Show this help message",
+          { reply_markup: keyboard }
+        );
+        return;
+      }
 
       if (isValidAddress(text)) {
         var tokenData = await fetchComprehensiveTokenData(text);

@@ -2,6 +2,7 @@ import { Pool } from "pg";
 import { WalletData } from "../types/wallet";
 import { UserSettings } from "../types/config";
 import { DATABASE_URL, DB_TABLES, NATIVE_TOKEN_ADDRESS } from "../utils/constants";
+import { BotContext } from "../context";
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
@@ -325,4 +326,46 @@ export async function closeDatabase(): Promise<void> {
   } catch (error) {
     console.error("❌ Error closing database connection pool:", error);
   }
+}
+
+export async function ensureUserInitialized(ctx: BotContext, next: () => Promise<void>) {
+  const userId = ctx.from?.id.toString();
+  
+  if (!userId) {
+    await ctx.reply("❌ Unable to identify user. Please try again later.");
+    return;
+  }
+
+  // If session doesn't have userId, initialize it
+  if (!ctx.session.userId) {
+    ctx.session.userId = userId;
+
+    // Check if user exists in database
+    const existingUser = await getUserByTelegramId(userId);
+
+    if (!existingUser) {
+      // Register new user
+      await createUser(
+        userId,
+        userId,
+        ctx.from?.username,
+        ctx.from?.first_name,
+        ctx.from?.last_name
+      );
+
+      // Create default settings
+      await saveUserSettings(userId, {
+        slippage: 1.0,
+        gasPriority: "medium",
+      });
+    } else {
+      // Load existing user settings
+      const settings = await getUserSettings(userId);
+      if (settings) {
+        ctx.session.settings = settings;
+      }
+    }
+  }
+
+  await next();
 }
