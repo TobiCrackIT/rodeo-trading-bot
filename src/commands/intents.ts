@@ -1,6 +1,8 @@
 import { InlineKeyboard } from "grammy";
 import { BotContext } from "../context";
 import { extractUserIntent, fetchComprehensiveTokenData, fetchGeneralData } from "../services/api-service";
+import { balanceHandler } from "./balance";
+import { walletHandler } from "./wallet";
 
 export async function handleGreeting(ctx: BotContext): Promise<void> {
     try {
@@ -76,20 +78,39 @@ export async function handleUserIntent(ctx: BotContext): Promise<void> {
         }
 
         console.log("General Data Response:", response);
-        if (response!.intent != 'other') {
-            await ctx.api.editMessageText(chat.chat.id, chat.message_id,
-                `${response!.intent}`,
-                { parse_mode: "HTML" }
-            );
-        } else if (response!.intent == 'other') {
-            var r = await fetchGeneralData(text);
-            console.log("General Data Response:", r);
-            await ctx.api.editMessageText(chat.chat.id, chat.message_id,
-                `${r.response}`
-            );
-        } else {
-            await ctx.reply("❌ Unable to fetch data for your query. Please try rephrasing.");
+        var intent = response!.intent;
+        // - send_token
+        // - check_balance
+        // - swap_token
+        // - bridge_token
+        // - approve_token
+        // - get_price
+        // - wallet_address
+        // - get_gas
+
+        switch (intent) {
+            case 'check_balance':
+                // await ctx.api.editMessageText(chat.chat.id, chat.message_id,
+                //     `${response!.intent}`,
+                //     { parse_mode: "HTML" }
+                // );
+                await ctx.api.deleteMessage(chat.chat.id,chat.message_id);
+                await balanceHandler.handler(ctx);
+                break;
+            case 'other':
+                var r = await fetchGeneralData(text);
+                await ctx.api.editMessageText(chat.chat.id, chat.message_id, `${r.response}`);
+                break;
+            case 'wallet_address':
+                await ctx.api.deleteMessage(chat.chat.id,chat.message_id);
+                await walletHandler.handler(ctx);
+                break;   
+            default:
+                await ctx.reply("❌ Unable to fetch data for your query. Please try rephrasing.");
+
         }
+
+
 
     } catch (error) {
         await ctx.reply("❌ Unable to fetch token data. Please ensure the address is correct.");

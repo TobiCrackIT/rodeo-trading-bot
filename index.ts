@@ -285,7 +285,9 @@ bot.on("message:text", async (ctx) => {
       await handleWithdrawAmount(ctx);
       break;
     default:
-      if (greetings.includes(text.toLowerCase())) {
+      var isGreeting = greetings.some(greeting => text.toLowerCase().startsWith(greeting.toLowerCase()));
+
+      if (isGreeting) {
         await handleGreeting(ctx);
         return;
       }
@@ -297,7 +299,6 @@ bot.on("message:text", async (ctx) => {
         await handleUserIntent(ctx);
         return;
       }
-      break;
   }
 });
 
