@@ -1,4 +1,5 @@
 import { TokenData } from "../types/wallet";
+import { UserAction } from "../types/user-action";
 import { getComprehensiveTokenData, getGeneralData, extractIntent } from "./api";
 import dotenv from "dotenv";
 
@@ -17,9 +18,9 @@ export async function fetchComprehensiveTokenData(address: string): Promise<Toke
     }
 }
 
-export async function fetchGeneralData(blockchain: string, query: string): Promise<any> {
+export async function fetchGeneralData(query: string): Promise<any> {
     try {
-        const data = await getGeneralData(blockchain, query);
+        const data = await getGeneralData(NETWORK, query);
         return data;
     } catch (error) {
         console.error("❌ Error fetching general data:", error);
@@ -27,10 +28,10 @@ export async function fetchGeneralData(blockchain: string, query: string): Promi
     }
 }
 
-export async function extractUserIntent(userInput: string): Promise<any> {
+export async function extractUserIntent(userInput: string): Promise<UserAction | null> {
     try {
         const intentData = await extractIntent(userInput);
-        return intentData;
+        return intentData as UserAction;
     } catch (error) {
         console.error("❌ Error extracting user intent:", error);
         return null;
