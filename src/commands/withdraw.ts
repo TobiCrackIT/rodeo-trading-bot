@@ -80,9 +80,14 @@ const withdrawHandler: CommandHandler = {
 
 // Handler for recipient address input
 export async function handleWithdrawAddress(ctx: BotContext): Promise<void> {
+    await handleWithdrawAddressIntent(ctx,ctx.message?.text??'');
+}
+
+//Handle NLP withdrawal address
+export async function handleWithdrawAddressIntent(ctx: BotContext,address:string): Promise<void> {
   try {
     const userId = ctx.session.userId;
-    const toAddress = ctx.message?.text;
+    const toAddress = address;
 
     if (!userId || !toAddress) {
       await ctx.reply("❌ Invalid request. Please try again.");

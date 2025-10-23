@@ -3,6 +3,7 @@ import { BotContext } from "../context";
 import { extractUserIntent, fetchComprehensiveTokenData, fetchGeneralData } from "../services/api-service";
 import { balanceHandler } from "./balance";
 import { walletHandler } from "./wallet";
+import withdrawHandler, { handleWithdrawAddress, handleWithdrawAddressIntent, handleWithdrawAmount } from "./withdraw";
 
 export async function handleGreeting(ctx: BotContext): Promise<void> {
     try {
@@ -14,13 +15,13 @@ export async function handleGreeting(ctx: BotContext): Promise<void> {
             .text("📤 Withdraw", "withdraw");
 
         await ctx.reply(
-            "🤖 Hello! Welcome to Rodeo, the number 1 vibe-trading platform on Base. Here are some things you can do:\n\n" +
-            "/wallet - View your wallet\n" +
-            "/balance - Check your balances\n" +
-            "/buy - Buy tokens with ETH\n" +
-            "/sell - Sell tokens for ETH\n" +
-            "/deposit - Get your deposit address\n" +
-            "/withdraw - Withdraw ETH to another address\n" +
+            "🤖 Hello! Welcome to Rodeo, the fastest vibe-trading platform on Base. Trade memes, stocks and prediction markets with natural language.\n\n" +
+            // "/wallet - View your wallet\n" +
+            // "/balance - Check your balances\n" +
+            // "/buy - Buy tokens with ETH\n" +
+            // "/sell - Sell tokens for ETH\n" +
+            // "/deposit - Get your deposit address\n" +
+            // "/withdraw - Withdraw ETH to another address\n" +
             "/settings - Change trading settings\n" +
             "/help - Show this help message",
             { reply_markup: keyboard }
@@ -80,31 +81,51 @@ export async function handleUserIntent(ctx: BotContext): Promise<void> {
         console.log("General Data Response:", response);
         var intent = response!.intent;
         // - send_token
-        // - check_balance
         // - swap_token
         // - bridge_token
         // - approve_token
         // - get_price
-        // - wallet_address
         // - get_gas
+        // - check_balance
+        // - wallet_address
 
         switch (intent) {
-            case 'check_balance':
+            case 'swap_token':
+                break;
+            ///TODO: Implement swap
+            case 'send_token':
+                ///TODO: Implement withdrawal
                 // await ctx.api.editMessageText(chat.chat.id, chat.message_id,
                 //     `${response!.intent}`,
                 //     { parse_mode: "HTML" }
                 // );
-                await ctx.api.deleteMessage(chat.chat.id,chat.message_id);
+                if (!response!.parameters.recipient) {
+                    withdrawHandler.handler(ctx);
+                    return;
+                }
+
+                if (!response!.parameters.amount) {
+                    handleWithdrawAddressIntent(ctx, response!.parameters.recipient);
+                    return;
+                }
+
+                //handleWithdrawAmount(ctx);
+                break;
+            case 'check_balance':
+                await ctx.api.deleteMessage(chat.chat.id, chat.message_id);
                 await balanceHandler.handler(ctx);
                 break;
+
             case 'other':
                 var r = await fetchGeneralData(text);
                 await ctx.api.editMessageText(chat.chat.id, chat.message_id, `${r.response}`);
                 break;
+
             case 'wallet_address':
-                await ctx.api.deleteMessage(chat.chat.id,chat.message_id);
+                await ctx.api.deleteMessage(chat.chat.id, chat.message_id);
                 await walletHandler.handler(ctx);
-                break;   
+                break;
+
             default:
                 await ctx.reply("❌ Unable to fetch data for your query. Please try rephrasing.");
 

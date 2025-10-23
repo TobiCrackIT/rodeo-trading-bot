@@ -47,17 +47,7 @@ export const walletHandler: CommandHandler = {
 
       await ctx.reply(
         `💼 *Your Wallet*\n\n` +
-          `*Address*: \`${wallet.address}\`\n` +
-          `*Type*: ${
-            wallet.type === "generated" ? "Generated" : "Imported"
-          }\n\n` +
-          
-          `Choose an action below or use one of these commands:\n` +
-          `- /balance - Check your token balances\n` +
-          `- /deposit - Show your deposit address\n` +
-          `- /withdraw - Withdraw ETH to another address\n` +
-          `- /buy - Buy tokens with ETH\n` +
-          `- /sell - Sell tokens for ETH`,
+          `*Address*: \`${wallet.address}\`\n`,
         {
           parse_mode: "Markdown",
           reply_markup: keyboard,
